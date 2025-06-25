@@ -1,11 +1,34 @@
+import { jwtDecode } from "jwt-decode";
+import { useEffect, useState } from "react";
 import { Button, Col, Image, Nav, Row } from "react-bootstrap";
-import ProfilePostCard from "../components/ProfilePostCard";
+import ProfilePostCard from "./ProfilePostCard";
 
 export default function ProfileMidBody() {
+  const [posts, setPosts] = useState([]);
   const url =
     "https://pbs.twimg.com/profile_banners/83072625/1602845571/1500x500";
   const pic =
     "https://pbs.twimg.com/profile_images/1587405892437221376/h167Jlb2_400x400.jpg";
+
+  /* Fetching the post based on userId */
+  const fetchPosts = (userId) => {
+    fetch(
+      `https://98425534-4b84-4741-8a6a-0f21162db7c4-00-xpntsbitq3qr.sisko.replit.dev/posts/user/${userId}`
+    )
+      .then((response) => response.json())
+      .then((data) => setPosts(data))
+      .catch((err) => console.error("Error", err));
+  };
+
+  //Check userId existence & unencrypt it
+  useEffect(() => {
+    const token = localStorage.getItem("authToken"); //Grabbing encrypted userId
+    if (token) {
+      const decodedToken = jwtDecode(token); //Decode the grabbed token
+      const userId = decodedToken.id;
+      fetchPosts(userId);
+    }
+  }, []);
 
   return (
     <Col sm={6} className="bg-light" style={{ border: "1px solid lightgrey" }}>
@@ -67,7 +90,17 @@ export default function ProfileMidBody() {
           <Nav.Link eventKey="link-4">Likes</Nav.Link>
         </Nav.Item>
       </Nav>
-      <ProfilePostCard />
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <ProfilePostCard
+            key={post.id}
+            content={post.content}
+            postId={post.id}
+          />
+        ))
+      ) : (
+        <p>No posts yet</p>
+      )}
     </Col>
   );
 }

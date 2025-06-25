@@ -31,8 +31,9 @@ export default function AuthPage() {
     try {
       const res = await axios.post(`${url}/signup`, { username, password }); //"axios" allows you to interact with APIs like "fetch"
       console.log(res.data);
-    } catch (err) {
-      console.error(err);
+      handleClose();
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -41,6 +42,7 @@ export default function AuthPage() {
     try {
       const res = await axios.post(`${url}/login`, { username, password }); //"axios" allows you to interact with APIs like "fetch"
       if (res.data && res.data.auth === true && res.data.token) {
+        //Whether what we receive is valid
         setAuthToken(res.data.token); //Save token to localStorage
         console.log("Login was successful, token saved");
       }
