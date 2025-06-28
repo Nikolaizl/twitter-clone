@@ -1,13 +1,17 @@
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { Col, Row, Image, Button, Modal, Form } from "react-bootstrap";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import useLocalStorage from "use-local-storage";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../components/AuthProvider";
 
 export default function AuthPage() {
   const loginImage = "https://sig1.co/img-twitter-1";
-  const url =
-    "https://98425534-4b84-4741-8a6a-0f21162db7c4-00-xpntsbitq3qr.sisko.replit.dev";
 
   //Possible values: null (no modal shows), "Login", "SignUp"
   const [modalShow, setModalShow] = useState(null);
@@ -15,22 +19,27 @@ export default function AuthPage() {
   const handleShowLogin = () => setModalShow("Login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [authToken, setAuthToken] = useLocalStorage("authToken", "");
 
   //navigate to profile page
   const navigate = useNavigate();
+  const auth = getAuth();
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
-    if (authToken) {
+    if (currentUser) {
       navigate("/profile");
     }
-  }, [authToken, navigate]);
+  }, [currentUser, navigate]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${url}/signup`, { username, password }); //"axios" allows you to interact with APIs like "fetch"
-      console.log(res.data);
+      const res = await createUserWithEmailAndPassword(
+        auth,
+        username,
+        password
+      );
+      console.log(res.user);
       handleClose();
     } catch (error) {
       console.error(error);
@@ -40,12 +49,17 @@ export default function AuthPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${url}/login`, { username, password }); //"axios" allows you to interact with APIs like "fetch"
-      if (res.data && res.data.auth === true && res.data.token) {
-        //Whether what we receive is valid
-        setAuthToken(res.data.token); //Save token to localStorage
-        console.log("Login was successful, token saved");
-      }
+      await signInWithEmailAndPassword(auth, username, password);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const provider = new GoogleAuthProvider();
+  const handleGoogleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithPopup(auth, provider);
     } catch (err) {
       console.error(err);
     }
@@ -70,7 +84,11 @@ export default function AuthPage() {
           Join Twitter Today
         </p>
         <Col sm={5} className="d-grid gap-2">
-          <Button className="rounded-pill" variant="outline-dark">
+          <Button
+            className="rounded-pill"
+            variant="outline-dark"
+            onClick={handleGoogleLogin}
+          >
             <i className="bi bi-google" />
             Sign up with Google
           </Button>
