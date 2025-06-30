@@ -17,10 +17,7 @@ export default function ProfilePage() {
     }
   }, [currentUser, navigate]);
 
-  const handleLogout = () => {
-    auth.signOut();
-  };
-
+  const handleLogout = () => auth.signOut();
   return (
     <>
       <Container>
