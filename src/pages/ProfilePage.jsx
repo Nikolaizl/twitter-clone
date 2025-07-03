@@ -15,7 +15,10 @@ export default function ProfilePage() {
     if (!currentUser) navigate("/login");
   }, [currentUser, navigate]);
 
-  const handleLogout = () => auth.signOut();
+  const handleLogout = () => {
+    auth.signOut().then(() => navigate("/"));
+  };
+
   return (
     <>
       <Container>

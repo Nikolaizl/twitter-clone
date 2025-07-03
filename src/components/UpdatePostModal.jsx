@@ -3,6 +3,7 @@ import { Button, Form, Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { updatePost } from "../features/posts/postsSlice";
 import { AuthContext } from "./AuthProvider";
+import { fetchPostsByUser } from "../features/posts/postsSlice";
 
 export default function UpdatePostModal({
   show,
@@ -17,7 +18,11 @@ export default function UpdatePostModal({
   const userId = currentUser.uid;
 
   const handleUpdate = () => {
-    dispatch(updatePost({ userId, postId, newPostContent, newFile }));
+    dispatch(updatePost({ userId, postId, newPostContent, newFile }))
+      .unwrap()
+      .then(() => {
+        dispatch(fetchPostsByUser(userId)); // ✅ re-fetch after update
+      });
     handleClose();
     setNewPostContent(originalPostContent);
     setNewFile(null);

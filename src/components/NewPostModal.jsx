@@ -3,6 +3,7 @@ import { Button, Form, Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { savePost } from "../features/posts/postsSlice";
 import { AuthContext } from "./AuthProvider";
+import { fetchPostsByUser } from "../features/posts/postsSlice";
 
 export default function NewPostModal({ show, handleClose }) {
   const [postContent, setPostContent] = useState("");
@@ -12,7 +13,11 @@ export default function NewPostModal({ show, handleClose }) {
   const userId = currentUser.uid;
 
   const handleSave = () => {
-    dispatch(savePost({ userId, postContent, file }));
+    dispatch(savePost({ userId, postContent, file }))
+      .unwrap()
+      .then(() => {
+        dispatch(fetchPostsByUser(userId)); // ✅ re-fetch after save
+      });
     handleClose();
     setPostContent("");
     setFile(null);
