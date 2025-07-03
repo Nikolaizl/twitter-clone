@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button, Col, Image, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import {
@@ -8,15 +7,10 @@ import {
 } from "../features/posts/postsSlice";
 import { auth } from "../firebase";
 import UpdatePostModal from "./UpdatePostModal";
+import { useState } from "react";
 
 export default function ProfilePostCard({ post }) {
-  const { content, id: postId, imageUrl } = post;
-  // const content = post.content
-  // const postId = post.id
-
-  const [likes, setLikes] = useState(post.likes || []);
-  // const [likes, setLikes] = useState(null || []);
-  // const [likes, setLikes] = useState([]);
+  const { content, id: postId, imageUrl, likes = [] } = post;
 
   const dispatch = useDispatch();
   const userId = auth.currentUser.uid;
@@ -31,16 +25,12 @@ export default function ProfilePostCard({ post }) {
   const handleShowUpdateModal = () => setShowUpdateModal(true);
   const handleCloseUpdateModal = () => setShowUpdateModal(false);
 
-  const handleLike = () => (isLiked ? removeFromLikes() : addToLikes());
-
-  const addToLikes = () => {
-    setLikes([...likes, userId]);
-    dispatch(likePost({ userId, postId }));
-  };
-
-  const removeFromLikes = () => {
-    setLikes(likes.filter((id) => id !== userId));
-    dispatch(removeLikeFromPost({ userId, postId }));
+  const handleLike = () => {
+    if (isLiked) {
+      dispatch(removeLikeFromPost({ userId, postId }));
+    } else {
+      dispatch(likePost({ userId, postId }));
+    }
   };
 
   const handleDelete = () => {

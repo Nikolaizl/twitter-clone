@@ -35,7 +35,7 @@ export default function UpdatePostModal({
           <Form>
             <Form.Group controlId="postContent">
               <Form.Control
-                defaultValue={originalPostContent}
+                value={newPostContent}
                 as="textarea"
                 rows={3}
                 onChange={(e) => setNewPostContent(e.target.value)}
