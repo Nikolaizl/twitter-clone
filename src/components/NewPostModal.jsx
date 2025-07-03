@@ -30,7 +30,7 @@ export default function NewPostModal({ show, handleClose }) {
           <Form>
             <Form.Group controlId="postContent">
               <Form.Control
-                placeholder="What is happening?!"
+                placeholder="What is happening?"
                 as="textarea"
                 rows={3}
                 onChange={(e) => setPostContent(e.target.value)}
