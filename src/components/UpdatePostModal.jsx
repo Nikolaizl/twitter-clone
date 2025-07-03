@@ -16,15 +16,15 @@ export default function UpdatePostModal({
   const { currentUser } = useContext(AuthContext);
   const userId = currentUser.uid;
 
-  const handleNewFileChange = (e) => {
-    setNewFile(e.target.files[0]);
-  };
-
   const handleUpdate = () => {
     dispatch(updatePost({ userId, postId, newPostContent, newFile }));
     handleClose();
-    setNewPostContent(newPostContent);
+    setNewPostContent(originalPostContent);
     setNewFile(null);
+  };
+
+  const handleNewFileChange = (e) => {
+    setNewFile(e.target.files[0]);
   };
 
   return (
@@ -35,7 +35,7 @@ export default function UpdatePostModal({
           <Form>
             <Form.Group controlId="postContent">
               <Form.Control
-                value={newPostContent}
+                defaultValue={originalPostContent}
                 as="textarea"
                 rows={3}
                 onChange={(e) => setNewPostContent(e.target.value)}

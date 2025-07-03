@@ -1,14 +1,12 @@
 import { Button, Col } from "react-bootstrap";
 import IconButton from "./IconButton";
-import NewPostModal from "./NewPostModal";
 import { useState } from "react";
+import NewPostModal from "./NewPostModal";
 
 export default function ProfileSideBar({ handleLogout }) {
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
   return (
     <Col
       sm={2}

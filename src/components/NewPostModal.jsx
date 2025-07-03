@@ -12,9 +12,6 @@ export default function NewPostModal({ show, handleClose }) {
   const userId = currentUser.uid;
 
   const handleSave = () => {
-    // Prevent saving empty posts if needed
-    if (!postContent && !file) return;
-
     dispatch(savePost({ userId, postContent, file }));
     handleClose();
     setPostContent("");
@@ -33,10 +30,9 @@ export default function NewPostModal({ show, handleClose }) {
           <Form>
             <Form.Group controlId="postContent">
               <Form.Control
-                placeholder="What is happening?"
+                placeholder="What is happening?!"
                 as="textarea"
                 rows={3}
-                value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
               />
               <br />
