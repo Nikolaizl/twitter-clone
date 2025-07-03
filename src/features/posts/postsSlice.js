@@ -33,33 +33,36 @@ export const updatePost = createAsyncThunk(
   "posts/updatePost",
   async ({ userId, postId, newPostContent, newFile }) => {
     try {
-      // Upload the new file to the storage if it exists and get its URL
-      let newImageUrl;
+      // Reference to the existing post
+      const postRef = doc(db, `users/${userId}/posts/${postId}`);
+      const postSnap = await getDoc(postRef);
+
+      if (!postSnap.exists()) {
+        throw new Error("Post does not exist");
+      }
+
+      const postData = postSnap.data();
+
+      // Build updated data
+      const updatedData = {
+        ...postData,
+        content: newPostContent || postData.content,
+      };
+
+      // Only update image if there is a new file
       if (newFile) {
         const imageRef = ref(storage, `posts/${newFile.name}`);
         const response = await uploadBytes(imageRef, newFile);
-        newImageUrl = await getDownloadURL(response.ref);
+        const newImageUrl = await getDownloadURL(response.ref);
+        updatedData.imageUrl = newImageUrl;
       }
-      // Reference to the existing post
-      const postRef = doc(db, `users/${userId}/posts/${postId}`);
-      // Get the current post data
-      const postSnap = await getDoc(postRef);
-      if (postSnap.exists()) {
-        const postData = postSnap.data();
-        // Update the post content and the image URL
-        const updatedData = {
-          ...postData,
-          content: newPostContent || postData.content,
-          imageUrl: newImageUrl || postData.imageUrl,
-        };
-        // Update the existing document in Firestore
-        await updateDoc(postRef, updatedData);
-        // Return the post with updated data
-        const updatedPost = { id: postId, ...updatedData };
-        return updatedPost;
-      } else {
-        throw new Error("Post does not exist");
-      }
+
+      // Finally update in Firestore
+      await updateDoc(postRef, updatedData);
+
+      // Return updated post
+      const updatedPost = { id: postId, ...updatedData };
+      return updatedPost;
     } catch (error) {
       console.error(error);
       throw error;
@@ -91,9 +94,13 @@ export const savePost = createAsyncThunk(
   "posts/savePost",
   async ({ userId, postContent, file }) => {
     try {
-      const imageRef = ref(storage, `posts/${file.name}`);
-      const response = await uploadBytes(imageRef, file);
-      const imageUrl = await getDownloadURL(response.ref);
+      let imageUrl = "";
+      if (file) {
+        const imageRef = ref(storage, `posts/${file.name}`);
+        const response = await uploadBytes(imageRef, file);
+        imageUrl = await getDownloadURL(response.ref);
+      }
+
       const postsRef = collection(db, `users/${userId}/posts`);
       const newPostRef = doc(postsRef);
       await setDoc(newPostRef, { content: postContent, likes: [], imageUrl });
